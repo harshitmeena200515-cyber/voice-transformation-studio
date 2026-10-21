@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="hi" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Voice Studio — Upload audio/video, transcribe, translate between 20+ languages and Hindi, generate new audio with custom voices." />
+  <meta name="theme-color" content="#0a0a1a" />
+  <title>🎙️ Voice Studio — ऑडियो/वीडियो Voice Transformation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Progress Bar -->
+  <div id="progress-bar" class="progress-bar" style="display:none;"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Ambient Background Orbs -->
+  <div class="ambient-orb orb-1" aria-hidden="true"></div>
+  <div class="ambient-orb orb-2" aria-hidden="true"></div>
+  <div class="ambient-orb orb-3" aria-hidden="true"></div>
+
+  <div class="container">
+
+    <!-- ─── Header ─────────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <span class="logo-icon">🎙️</span>
+          <div>
+            <h1 class="title">Voice Studio</h1>
+            <p class="subtitle">ऑडियो/वीडियो → Transcribe → Translate → New Voice</p>
+          </div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light/dark mode">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 1 — INPUT                                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="card" id="input-section" style="animation-delay: 0.1s;">
+      <div class="card-header">
+        <span class="step-badge">1</span>
+        <h2>📂 Input — ऑडियो / वीडियो अपलोड करें</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="file-upload" accept="audio/*,video/*,.mp3,.wav,.ogg,.m4a,.flac,.aac,.mp4,.webm,.mkv,.avi" hidden />
+          <div class="upload-icon">📁</div>
+          <p class="upload-title">फ़ाइल यहाँ ड्रैग करें या क्लिक करें</p>
+          <p class="upload-subtitle">MP3, WAV, OGG, M4A, FLAC, MP4, WEBM supported</p>
+        </div>
+
+        <!-- OR Divider -->
+        <div class="divider-or">
+          <span>या</span>
+        </div>
+
+        <!-- Record Button -->
+        <div class="record-area">
+          <button id="record-btn" class="record-btn" title="माइक्रोफ़ोन से रिकॉर्ड करें">
+            <span class="record-icon">🎤</span>
+          </button>
+          <p class="record-label">माइक्रोफ़ोन से रिकॉर्ड करें</p>
+        </div>
+
+        <!-- File Info -->
+        <div id="file-info" class="file-info" style="display:none;">
+          <div class="file-detail"><span class="detail-label">📄 नाम:</span> <span id="file-name">—</span></div>
+          <div class="file-detail"><span class="detail-label">📦 साइज़:</span> <span id="file-size">—</span></div>
+          <div class="file-detail"><span class="detail-label">⏱️ अवधि:</span> <span id="file-duration">—</span></div>
+        </div>
+
+        <!-- Media Players -->
+        <div class="media-player">
+          <audio id="audio-player" controls style="display:none;"></audio>
+          <div id="video-container" style="display:none;">
+            <video id="video-player" controls></video>
+          </div>
+        </div>
+
+        <!-- Auto-Dub Action -->
+        <div id="auto-dub-container" style="display:none; margin-top: 16px; text-align: center;">
+          <button id="auto-dub-btn" class="btn btn-generate" title="Translate & Dub in Hindi">
+            🎬 Auto-Dub to Hindi
+          </button>
+          <p id="auto-dub-progress" class="status" style="margin-top: 8px;"></p>
+        </div>
+
+        <!-- Waveform Canvas -->
+        <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+
+        <!-- Status -->
+        <div id="input-section-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 2 — TRANSCRIBE                                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="card" id="transcribe-section" style="animation-delay: 0.2s;">
+      <div class="card-header">
+        <span class="step-badge">2</span>
+        <h2>📝 Transcribe — Speech को Text में बदलें</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Language Selection -->
+        <div class="language-row">
+          <div class="form-group">
+            <label for="transcribe-lang">🌐 भाषा चुनें:</label>
+            <select id="transcribe-lang" class="styled-select">
+              <optgroup label="🇮🇳 भारतीय भाषाएँ">
+                <option value="hi-IN" selected>🇮🇳 हिन्दी</option>
+                <option value="bn-IN">🇮🇳 বাংলা (Bengali)</option>
+                <option value="ta-IN">🇮🇳 தமிழ் (Tamil)</option>
+                <option value="te-IN">🇮🇳 తెలుగు (Telugu)</option>
+                <option value="mr-IN">🇮🇳 मराठी (Marathi)</option>
+                <option value="gu-IN">🇮🇳 ગુજરાતી (Gujarati)</option>
+                <option value="pa-IN">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+              </optgroup>
+              <optgroup label="🌍 International Languages">
+                <option value="en-US">🇺🇸 English (US)</option>
+                <option value="en-GB">🇬🇧 English (UK)</option>
+                <option value="es-ES">🇪🇸 Español (Spanish)</option>
+                <option value="fr-FR">🇫🇷 Français (French)</option>
+                <option value="de-DE">🇩🇪 Deutsch (German)</option>
+                <option value="ja-JP">🇯🇵 日本語 (Japanese)</option>
+                <option value="ko-KR">🇰🇷 한국어 (Korean)</option>
+                <option value="zh-CN">🇨🇳 中文 (Chinese)</option>
+                <option value="ar-SA">🇸🇦 العربية (Arabic)</option>
+                <option value="pt-BR">🇧🇷 Português (Portuguese)</option>
+                <option value="ru-RU">🇷🇺 Русский (Russian)</option>
+                <option value="it-IT">🇮🇹 Italiano (Italian)</option>
+                <option value="ur-PK">🇵🇰 اردو (Urdu)</option>
+              </optgroup>
+            </select>
+          </div>
+          <button id="transcribe-btn" class="btn btn-primary">
+            ▶ Transcription शुरू करें
+          </button>
+        </div>
+
+        <!-- Transcription Output -->
+        <textarea id="transcript-area" class="text-output" placeholder="ट्रांसक्रिप्शन यहाँ दिखेगा... (बोलना शुरू करें या ऑडियो चलाएँ)" rows="6"></textarea>
+        <div id="interim-display" class="interim-display"></div>
+
+        <!-- Status -->
+        <div id="transcribe-section-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 3 — TRANSLATE                                    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="card" id="translate-section" style="animation-delay: 0.3s;">
+      <div class="card-header">
+        <span class="step-badge">3</span>
+        <h2>🌐 Translate — किसी भी भाषा से Hindi में बदलें</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Language Selectors -->
+        <div class="translate-header">
+          <div class="form-group">
+            <label for="source-lang">📤 Source:</label>
+            <select id="source-lang" class="styled-select">
+              <optgroup label="🇮🇳 भारतीय भाषाएँ">
+                <option value="hi">🇮🇳 हिन्दी</option>
+                <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+                <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+                <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+                <option value="mr">🇮🇳 मराठी (Marathi)</option>
+                <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+                <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+              </optgroup>
+              <optgroup label="🌍 International Languages">
+                <option value="en" selected>🇺🇸 English</option>
+                <option value="es">🇪🇸 Español (Spanish)</option>
+                <option value="fr">🇫🇷 Français (French)</option>
+                <option value="de">🇩🇪 Deutsch (German)</option>
+                <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                <option value="ko">🇰🇷 한국어 (Korean)</option>
+                <option value="zh-CN">🇨🇳 中文 (Chinese)</option>
+                <option value="ar">🇸🇦 العربية (Arabic)</option>
+                <option value="pt">🇧🇷 Português (Portuguese)</option>
+                <option value="ru">🇷🇺 Русский (Russian)</option>
+                <option value="it">🇮🇹 Italiano (Italian)</option>
+                <option value="ur">🇵🇰 اردو (Urdu)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <button id="swap-langs-btn" class="swap-btn" title="भाषाएँ बदलें (Swap)">
+            🔄
+          </button>
+
+          <div class="form-group">
+            <label for="target-lang">📥 Target:</label>
+            <select id="target-lang" class="styled-select">
+              <optgroup label="🇮🇳 भारतीय भाषाएँ">
+                <option value="hi" selected>🇮🇳 हिन्दी</option>
+                <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+                <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+                <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+                <option value="mr">🇮🇳 मराठी (Marathi)</option>
+                <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+                <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+              </optgroup>
+              <optgroup label="🌍 International Languages">
+                <option value="en">🇺🇸 English</option>
+                <option value="es">🇪🇸 Español (Spanish)</option>
+                <option value="fr">🇫🇷 Français (French)</option>
+                <option value="de">🇩🇪 Deutsch (German)</option>
+                <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                <option value="ko">🇰🇷 한국어 (Korean)</option>
+                <option value="zh-CN">🇨🇳 中文 (Chinese)</option>
+                <option value="ar">🇸🇦 العربية (Arabic)</option>
+                <option value="pt">🇧🇷 Português (Portuguese)</option>
+                <option value="ru">🇷🇺 Русский (Russian)</option>
+                <option value="it">🇮🇹 Italiano (Italian)</option>
+                <option value="ur">🇵🇰 اردو (Urdu)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- Translation Text Areas -->
+        <div class="translate-grid">
+          <div class="translate-col">
+            <label class="text-label">📄 Source Text:</label>
+            <textarea id="source-text" class="text-output" placeholder="यहाँ text लिखें या Transcription से copy करें..." rows="5"></textarea>
+          </div>
+          <div class="translate-col">
+            <label class="text-label">✅ Translated Text:</label>
+            <textarea id="translated-text" class="text-output" placeholder="अनुवाद यहाँ दिखेगा..." rows="5" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+          <button id="translate-btn" class="btn btn-accent">
+            🌐 Translate करें
+          </button>
+          <button id="copy-btn" class="btn btn-download" title="Translated text copy करें">
+            📋 Copy
+          </button>
+        </div>
+
+        <!-- Status -->
+        <div id="translate-section-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- STEP 4 — GENERATE AUDIO                               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="card" id="generate-section" style="animation-delay: 0.4s;">
+      <div class="card-header">
+        <span class="step-badge">4</span>
+        <h2>🔊 Generate — नई आवाज़ में बोलें</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Text to Speak -->
+        <div class="form-group">
+          <label for="tts-text">💬 Text to Speech:</label>
+          <textarea id="tts-text" class="text-output" placeholder="यहाँ वो text लिखें जो बोलना है... (translated text यहाँ auto-copy भी होगा)" rows="4"></textarea>
+        </div>
+
+        <!-- Voice Selection -->
+        <div class="form-group">
+          <label for="voice-select">🎭 Voice चुनें:</label>
+          <select id="voice-select" class="styled-select voice-select">
+            <option value="">Voices loading...</option>
+          </select>
+        </div>
+
+        <!-- Sliders -->
+        <div class="sliders-row">
+          <div class="slider-group">
+            <label for="pitch-slider">🎵 Pitch:</label>
+            <div class="slider-wrapper">
+              <input type="range" id="pitch-slider" class="styled-range" min="0.1" max="2" step="0.1" value="1" />
+              <span id="pitch-value" class="slider-value">1.0</span>
+            </div>
+          </div>
+          <div class="slider-group">
+            <label for="speed-slider">⚡ Speed:</label>
+            <div class="slider-wrapper">
+              <input type="range" id="speed-slider" class="styled-range" min="0.1" max="3" step="0.1" value="1" />
+              <span id="speed-value" class="slider-value">1.0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice Sample -->
+        <div class="voice-sample">
+          <h3 class="sample-title">🗣️ Voice Sample (Optional — Reference)</h3>
+          <p class="sample-desc">एक छोटी ऑडियो/वीडियो clip upload करें — voice characteristics analyze होंगी</p>
+          <div class="sample-controls">
+            <label class="btn btn-download sample-upload-btn" for="voice-sample-upload">
+              📎 Upload Voice Clip
+            </label>
+            <input type="file" id="voice-sample-upload" accept="audio/*,video/*" hidden />
+            <button id="play-sample-btn" class="btn btn-download" disabled title="Sample सुनें">
+              ▶ Sample सुनें
+            </button>
+          </div>
+          <div id="sample-info" class="sample-info" style="display:none;"></div>
+        </div>
+
+        <!-- Generate Actions -->
+        <div class="generate-actions">
+          <button id="speak-btn" class="btn btn-primary" title="सुनें">
+            🔊 सुनें (Preview)
+          </button>
+          <button id="generate-btn" class="btn btn-generate" title="Generate & Download">
+            ⚡ Generate & Download
+          </button>
+          <button id="download-btn" class="btn btn-download" style="display:none;" title="Download Audio">
+            💾 Download Audio
+          </button>
+        </div>
+
+        <!-- Status -->
+        <div id="generate-section-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ─── Footer ─────────────────────────────────────────── -->
+    <footer class="footer">
+      <p>🎙️ Voice Studio — Made with ❤️ | किसी भी भाषा → हिन्दी</p>
+      <p class="footer-note">Web Speech API • MyMemory Translation • 20+ Languages</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
