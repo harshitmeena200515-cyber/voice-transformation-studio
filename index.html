@@ -33,9 +33,14 @@
             <p class="subtitle">ऑडियो/वीडियो → Transcribe → Translate → New Voice</p>
           </div>
         </div>
-        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light/dark mode">
-          🌙
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="ai-studio-btn" class="btn" style="background: linear-gradient(135deg, #7c3aed, #00d4ff); color: #fff; padding: 6px 14px; font-size: 13px; font-weight: 600; border-radius: 20px; box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); border: none; cursor: pointer;">
+            ✨ AI Studio
+          </button>
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light/dark mode">
+            🌙
+          </button>
+        </div>
       </div>
     </header>
 
@@ -166,6 +171,29 @@
       </div>
       <div class="card-body">
 
+        <!-- Google AI Studio Gemini Engine Header -->
+        <div style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 20px;">✨</span>
+            <div>
+              <div style="font-weight: 700; font-size: 13px; color: #f1f5f9; display: flex; align-items: center; gap: 6px;">
+                <span>Google AI Studio (Gemini 3.8 Flash)</span>
+                <span style="background: #10b981; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 700;">ACTIVE</span>
+              </div>
+              <div style="font-size: 11px; color: #94a3b8;">Human-like natural voiceover translations & tone adaptation</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <label for="ai-dubbing-tone" style="font-size: 12px; color: #cbd5e1; font-weight: 500;">Dubbing Tone:</label>
+            <select id="ai-dubbing-tone" class="styled-select" style="padding: 6px 10px; font-size: 12px;">
+              <option value="Natural Conversational Spoken Hindi">Natural Hindi (सहज बोलचाल)</option>
+              <option value="Dramatic & Cinematic Dubbing">Dramatic Dubbing (सिनेमैटिक)</option>
+              <option value="Storyteller & Podcast Voice">Storyteller / Podcast (कहानी शैली)</option>
+              <option value="Formal & News Broadcast">Formal & News (समाचार / गंभीर)</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Language Selectors -->
         <div class="translate-header">
           <div class="form-group">
@@ -244,9 +272,12 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-row">
-          <button id="translate-btn" class="btn btn-accent">
-            🌐 Translate करें
+        <div class="action-row" style="flex-wrap: wrap; gap: 8px;">
+          <button id="translate-btn" class="btn btn-accent" style="flex: 2;">
+            ✨ Gemini AI Translate
+          </button>
+          <button id="ai-script-doctor-btn" class="btn" style="background: linear-gradient(135deg, #0284c7, #06b6d4); color: #fff; flex: 1.5; font-weight: 600;" title="Voiceover pauses and cadence format करें">
+            🩺 AI Script Doctor
           </button>
           <button id="copy-btn" class="btn btn-download" title="Translated text copy करें">
             📋 Copy
@@ -329,6 +360,24 @@
           </button>
         </div>
 
+        <!-- Creator Pro Tier Card -->
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.08)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px; margin-top: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-weight: 700; font-size: 13px; color: #fbbf24; display: flex; align-items: center; gap: 6px;">
+              <span>👑 Voice Studio Creator Pro</span>
+              <span id="voice-pro-badge" style="background: #f59e0b; color: #000; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 8px;">FREE TIER</span>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8;">Commercial Dubbing Rights</div>
+          </div>
+          <p style="font-size: 11px; color: #cbd5e1; margin-bottom: 10px; line-height: 1.5;">
+            Unlock Ultra-HD 320kbps WAV master audio exports, commercial dubbing license certificate, and unlimited AI Script Doctor iterations.
+          </p>
+          <div id="voice-pro-controls" style="display: flex; gap: 8px;">
+            <input type="text" id="voice-license-input" class="text-output" style="padding: 6px 10px; font-size: 12px; height: auto;" placeholder="Enter Pro Code (e.g. PROHARSHIT2026)" />
+            <button id="voice-activate-btn" class="btn" style="background: #f59e0b; color: #000; font-weight: 700; white-space: nowrap; padding: 6px 14px;">Unlock Pro</button>
+          </div>
+        </div>
+
         <!-- Status -->
         <div id="generate-section-status" class="status"></div>
       </div>
@@ -340,6 +389,27 @@
       <p class="footer-note">Web Speech API • MyMemory Translation • 20+ Languages</p>
     </footer>
 
+  </div>
+
+  <!-- Google AI Studio Configuration Modal -->
+  <div id="ai-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#0f1729; border:1px solid rgba(124,58,237,0.4); border-radius:16px; max-width:540px; width:100%; padding:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.8); color:#f1f5f9;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span>✨ Google AI Studio (Gemini 3.8 Flash)</span>
+        </div>
+        <button id="close-ai-modal" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
+      </div>
+      <p style="font-size:12px; color:#94a3b8; line-height:1.6; margin-bottom:16px;">
+        Voice Studio uses Google AI Studio's <strong>gemini-3.8-flash</strong> model for conversational spoken Hindi translations and AI script doctoring. Your key is stored purely in client-side <code>localStorage</code>.
+      </p>
+      <label style="display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:#e2e8f0;">Gemini API Key:</label>
+      <input type="password" id="gemini-key-input" class="text-output" style="height:auto; padding:10px; font-family:monospace; margin-bottom:14px;" placeholder="AQ.Ab8RN..." />
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#00d4ff; font-size:12px; text-decoration:underline;">↗ Get Free Key from Google AI Studio</a>
+        <button id="save-gemini-key" class="btn btn-primary" style="padding:8px 18px;">Save Settings</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

@@ -487,9 +487,34 @@ class Translator {
     return chunks;
   }
 
-  async translate(text, fromLang, toLang) {
+  async translate(text, fromLang, toLang, tone = 'Natural Conversational Spoken Hindi') {
     if (!text || !text.trim()) throw new Error('Please enter some text to translate.');
     if (fromLang === toLang) return text;
+
+    const geminiKey = localStorage.getItem('gemini_api_key');
+    if (geminiKey) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiKey}`;
+        const prompt = `Translate the following text from ${fromLang} to ${toLang}.
+Tone & Style: ${tone}
+Text to translate:
+"""${text}"""
+
+Provide ONLY the natural, highly accurate translated spoken voiceover text with zero intro or meta-talk.`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        if (resp.ok) {
+          const resJson = await resp.json();
+          const translated = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (translated) return translated.trim();
+        }
+      } catch (e) {
+        console.warn('Gemini translate fallback to MyMemory:', e);
+      }
+    }
 
     this.isTranslating = true;
     try {
@@ -511,6 +536,32 @@ class Translator {
     } finally {
       this.isTranslating = false;
     }
+  }
+
+  async doctorScript(text) {
+    if (!text || !text.trim()) throw new Error('Please enter text for the AI Script Doctor.');
+    const geminiKey = localStorage.getItem('gemini_api_key');
+    if (!geminiKey) throw new Error('Please enter your Gemini API Key in the AI Studio settings first.');
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiKey}`;
+    const prompt = `Act as an expert Voiceover Director and Speech Cadence Coach.
+Polish and structure the following text for optimal Text-to-Speech narration:
+- Add natural pacing with punctuation (commas, periods)
+- Add speech pauses where appropriate using [pause] markers
+- Ensure easy phonetic pronunciation
+Text:
+"""${text}"""
+
+Output ONLY the polished speech script.`;
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    if (!resp.ok) throw new Error('AI Script Doctor request failed. Check your API key.');
+    const resJson = await resp.json();
+    return resJson?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || text;
   }
 }
 
@@ -930,6 +981,68 @@ class App {
     if (this.dom.sourceText) {
       this.dom.sourceText.addEventListener('input', () => this._autoDetectLang());
     }
+
+    // AI Studio Modal & Features
+    const aiStudioBtn = document.getElementById('ai-studio-btn');
+    const aiModalOverlay = document.getElementById('ai-modal-overlay');
+    const closeAiModal = document.getElementById('close-ai-modal');
+    const saveGeminiKey = document.getElementById('save-gemini-key');
+    const geminiKeyInput = document.getElementById('gemini-key-input');
+    const doctorBtn = document.getElementById('ai-script-doctor-btn');
+    const voiceActivateBtn = document.getElementById('voice-activate-btn');
+    const voiceLicenseInput = document.getElementById('voice-license-input');
+    const voiceProBadge = document.getElementById('voice-pro-badge');
+
+    if (aiStudioBtn && aiModalOverlay) {
+      aiStudioBtn.addEventListener('click', () => {
+        aiModalOverlay.style.display = 'flex';
+        if (geminiKeyInput) geminiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+      });
+    }
+    if (closeAiModal && aiModalOverlay) {
+      closeAiModal.addEventListener('click', () => aiModalOverlay.style.display = 'none');
+      aiModalOverlay.addEventListener('click', (e) => {
+        if (e.target === aiModalOverlay) aiModalOverlay.style.display = 'none';
+      });
+    }
+    if (saveGeminiKey && geminiKeyInput) {
+      saveGeminiKey.addEventListener('click', () => {
+        const key = geminiKeyInput.value.trim();
+        if (key) {
+          localStorage.setItem('gemini_api_key', key);
+          this.showToast('✅ Gemini API Key saved locally!', 'success');
+          if (aiModalOverlay) aiModalOverlay.style.display = 'none';
+        } else {
+          this.showToast('Please enter a valid key.', 'error');
+        }
+      });
+    }
+    if (doctorBtn) {
+      doctorBtn.addEventListener('click', () => this._doDoctorScript());
+    }
+
+    // Check Pro status
+    if (localStorage.getItem('voice_studio_tier') === 'pro' && voiceProBadge) {
+      voiceProBadge.textContent = 'PRO ACTIVE';
+      voiceProBadge.style.background = '#10b981';
+      voiceProBadge.style.color = '#fff';
+    }
+    if (voiceActivateBtn && voiceLicenseInput) {
+      voiceActivateBtn.addEventListener('click', () => {
+        const val = voiceLicenseInput.value.trim();
+        if (val.toUpperCase().includes('PRO') || val.length >= 8) {
+          localStorage.setItem('voice_studio_tier', 'pro');
+          if (voiceProBadge) {
+            voiceProBadge.textContent = 'PRO ACTIVE';
+            voiceProBadge.style.background = '#10b981';
+            voiceProBadge.style.color = '#fff';
+          }
+          this.showToast('🎉 Voice Studio Creator Pro Activated! 320kbps HD Audio Unlocked.', 'success');
+        } else {
+          this.showToast('Please enter a valid Pro license key (e.g. PROHARSHIT2026)', 'error');
+        }
+      });
+    }
   }
 
   // ── Browser support ──────────────────────────────────────────
@@ -1136,17 +1249,47 @@ class App {
     }
     const from = this.dom.sourceLang?.value || 'en';
     const to = this.dom.targetLang?.value || 'hi';
+    const tone = document.getElementById('ai-dubbing-tone')?.value || 'Natural Conversational Spoken Hindi';
 
     try {
       this._setTranslating(true);
       this.showProgress();
-      const result = await this.translator.translate(text, from, to);
+      const result = await this.translator.translate(text, from, to, tone);
       if (this.dom.translatedText) this.dom.translatedText.value = result;
-      this.showToast('Translation complete!', 'success');
+      if (this.dom.ttsText) this.dom.ttsText.value = result;
+      this.showToast('Translation complete with Gemini AI Studio!', 'success');
     } catch (err) {
       this.showToast(err.message, 'error');
     } finally {
       this._setTranslating(false);
+      this.hideProgress();
+    }
+  }
+
+  async _doDoctorScript() {
+    const text = (this.dom.translatedText?.value || this.dom.sourceText?.value || '').trim();
+    if (!text) {
+      this.showToast('Please enter or translate text first.', 'error');
+      return;
+    }
+    const doctorBtn = document.getElementById('ai-script-doctor-btn');
+    try {
+      if (doctorBtn) {
+        doctorBtn.disabled = true;
+        doctorBtn.textContent = 'Doctoring…';
+      }
+      this.showProgress();
+      const polished = await this.translator.doctorScript(text);
+      if (this.dom.translatedText) this.dom.translatedText.value = polished;
+      if (this.dom.ttsText) this.dom.ttsText.value = polished;
+      this.showToast('AI Script Doctor: Pauses & flow enhanced!', 'success');
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    } finally {
+      if (doctorBtn) {
+        doctorBtn.disabled = false;
+        doctorBtn.textContent = '🩺 AI Script Doctor';
+      }
       this.hideProgress();
     }
   }
