@@ -171,13 +171,13 @@
       </div>
       <div class="card-body">
 
-        <!-- Google AI Studio Gemini Engine Header -->
+        <!-- AI Studio Neural Engine Header -->
         <div style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 20px;">✨</span>
             <div>
               <div style="font-weight: 700; font-size: 13px; color: #f1f5f9; display: flex; align-items: center; gap: 6px;">
-                <span>Google AI Studio (Gemini 3.8 Flash)</span>
+                <span>AI Studio Neural Engine</span>
                 <span style="background: #10b981; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 700;">ACTIVE</span>
               </div>
               <div style="font-size: 11px; color: #94a3b8;">Human-like natural voiceover translations & tone adaptation</div>
@@ -274,7 +274,7 @@
         <!-- Action Buttons -->
         <div class="action-row" style="flex-wrap: wrap; gap: 8px;">
           <button id="translate-btn" class="btn btn-accent" style="flex: 2;">
-            ✨ Gemini AI Translate
+            ✨ Smart AI Translate
           </button>
           <button id="ai-script-doctor-btn" class="btn" style="background: linear-gradient(135deg, #0284c7, #06b6d4); color: #fff; flex: 1.5; font-weight: 600;" title="Voiceover pauses and cadence format करें">
             🩺 AI Script Doctor
@@ -391,23 +391,23 @@
 
   </div>
 
-  <!-- Google AI Studio Configuration Modal -->
+  <!-- AI Studio Configuration Modal -->
   <div id="ai-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#0f1729; border:1px solid rgba(124,58,237,0.4); border-radius:16px; max-width:540px; width:100%; padding:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.8); color:#f1f5f9;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
-          <span>✨ Google AI Studio (Gemini 3.8 Flash)</span>
+          <span>✨ AI Studio Neural Engine</span>
         </div>
         <button id="close-ai-modal" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
       </div>
       <p style="font-size:12px; color:#94a3b8; line-height:1.6; margin-bottom:16px;">
-        Voice Studio uses Google AI Studio's <strong>gemini-3.8-flash</strong> model for conversational spoken Hindi translations and AI script doctoring. Your key is stored purely in client-side <code>localStorage</code>.
+        Voice Studio uses AI Studio's high-speed neural models for conversational spoken Hindi translations and AI script doctoring. Your key is stored purely in client-side <code>localStorage</code>.
       </p>
-      <label style="display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:#e2e8f0;">Gemini API Key:</label>
-      <input type="password" id="gemini-key-input" class="text-output" style="height:auto; padding:10px; font-family:monospace; margin-bottom:14px;" placeholder="AQ.Ab8RN..." />
+      <label style="display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:#e2e8f0;">AI Studio API Key:</label>
+      <input type="password" id="ai-key-input" class="text-output" style="height:auto; padding:10px; font-family:monospace; margin-bottom:14px;" placeholder="AI Key..." />
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#00d4ff; font-size:12px; text-decoration:underline;">↗ Get Free Key from Google AI Studio</a>
-        <button id="save-gemini-key" class="btn btn-primary" style="padding:8px 18px;">Save Settings</button>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#00d4ff; font-size:12px; text-decoration:underline;">↗ Get Key from AI Studio</a>
+        <button id="save-ai-key" class="btn btn-primary" style="padding:8px 18px;">Save Settings</button>
       </div>
     </div>
   </div>

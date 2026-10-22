@@ -491,10 +491,10 @@ class Translator {
     if (!text || !text.trim()) throw new Error('Please enter some text to translate.');
     if (fromLang === toLang) return text;
 
-    const geminiKey = localStorage.getItem('gemini_api_key');
-    if (geminiKey) {
+    const aiKey = localStorage.getItem('ai_studio_key') || localStorage.getItem('ai_api_key');
+    if (aiKey) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${aiKey}`;
         const prompt = `Translate the following text from ${fromLang} to ${toLang}.
 Tone & Style: ${tone}
 Text to translate:
@@ -512,7 +512,7 @@ Provide ONLY the natural, highly accurate translated spoken voiceover text with 
           if (translated) return translated.trim();
         }
       } catch (e) {
-        console.warn('Gemini translate fallback to MyMemory:', e);
+        console.warn('AI Studio translate fallback to MyMemory:', e);
       }
     }
 
@@ -540,10 +540,10 @@ Provide ONLY the natural, highly accurate translated spoken voiceover text with 
 
   async doctorScript(text) {
     if (!text || !text.trim()) throw new Error('Please enter text for the AI Script Doctor.');
-    const geminiKey = localStorage.getItem('gemini_api_key');
-    if (!geminiKey) throw new Error('Please enter your Gemini API Key in the AI Studio settings first.');
+    const aiKey = localStorage.getItem('ai_studio_key') || localStorage.getItem('ai_api_key');
+    if (!aiKey) throw new Error('Please enter your AI Studio API Key in the settings first.');
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${aiKey}`;
     const prompt = `Act as an expert Voiceover Director and Speech Cadence Coach.
 Polish and structure the following text for optimal Text-to-Speech narration:
 - Add natural pacing with punctuation (commas, periods)
@@ -986,8 +986,8 @@ class App {
     const aiStudioBtn = document.getElementById('ai-studio-btn');
     const aiModalOverlay = document.getElementById('ai-modal-overlay');
     const closeAiModal = document.getElementById('close-ai-modal');
-    const saveGeminiKey = document.getElementById('save-gemini-key');
-    const geminiKeyInput = document.getElementById('gemini-key-input');
+    const saveAiKey = document.getElementById('save-ai-key');
+    const aiKeyInput = document.getElementById('ai-key-input');
     const doctorBtn = document.getElementById('ai-script-doctor-btn');
     const voiceActivateBtn = document.getElementById('voice-activate-btn');
     const voiceLicenseInput = document.getElementById('voice-license-input');
@@ -996,7 +996,7 @@ class App {
     if (aiStudioBtn && aiModalOverlay) {
       aiStudioBtn.addEventListener('click', () => {
         aiModalOverlay.style.display = 'flex';
-        if (geminiKeyInput) geminiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+        if (aiKeyInput) aiKeyInput.value = localStorage.getItem('ai_studio_key') || localStorage.getItem('ai_api_key') || '';
       });
     }
     if (closeAiModal && aiModalOverlay) {
@@ -1005,12 +1005,13 @@ class App {
         if (e.target === aiModalOverlay) aiModalOverlay.style.display = 'none';
       });
     }
-    if (saveGeminiKey && geminiKeyInput) {
-      saveGeminiKey.addEventListener('click', () => {
-        const key = geminiKeyInput.value.trim();
+    if (saveAiKey && aiKeyInput) {
+      saveAiKey.addEventListener('click', () => {
+        const key = aiKeyInput.value.trim();
         if (key) {
-          localStorage.setItem('gemini_api_key', key);
-          this.showToast('✅ Gemini API Key saved locally!', 'success');
+          localStorage.setItem('ai_studio_key', key);
+          localStorage.setItem('ai_api_key', key);
+          this.showToast('✅ AI Studio API Key saved locally!', 'success');
           if (aiModalOverlay) aiModalOverlay.style.display = 'none';
         } else {
           this.showToast('Please enter a valid key.', 'error');
@@ -1257,7 +1258,7 @@ class App {
       const result = await this.translator.translate(text, from, to, tone);
       if (this.dom.translatedText) this.dom.translatedText.value = result;
       if (this.dom.ttsText) this.dom.ttsText.value = result;
-      this.showToast('Translation complete with Gemini AI Studio!', 'success');
+      this.showToast('Translation complete with AI Studio Engine!', 'success');
     } catch (err) {
       this.showToast(err.message, 'error');
     } finally {
